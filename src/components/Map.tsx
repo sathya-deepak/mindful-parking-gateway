@@ -8,13 +8,28 @@ import { useToast } from './ui/use-toast';
 interface MapProps {
   parkingLocation?: [number, number];
   onBack?: () => void;
+  isAdmin?: boolean;
 }
 
-const Map = ({ parkingLocation = [-74.006, 40.7128], onBack }: MapProps) => {
+interface ParkingSlot {
+  id: number;
+  location: [number, number];
+  status: 'available' | 'occupied';
+  plateNumber?: string;
+}
+
+const Map = ({ parkingLocation = [-74.006, 40.7128], onBack, isAdmin = false }: MapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const { toast } = useToast();
+
+  // Sample parking slots data (in real app, this would come from a backend)
+  const [parkingSlots] = useState<ParkingSlot[]>([
+    { id: 1, location: [-74.005, 40.7125], status: 'available' },
+    { id: 2, location: [-74.007, 40.7130], status: 'occupied', plateNumber: 'ABC123' },
+    { id: 3, location: [-74.004, 40.7135], status: 'available' },
+  ]);
 
   useEffect(() => {
     if (!mapContainer.current) return;
@@ -26,7 +41,7 @@ const Map = ({ parkingLocation = [-74.006, 40.7128], onBack }: MapProps) => {
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/streets-v12',
       center: parkingLocation,
-      zoom: 12
+      zoom: 14
     });
 
     // Add navigation controls
@@ -34,43 +49,87 @@ const Map = ({ parkingLocation = [-74.006, 40.7128], onBack }: MapProps) => {
 
     // Get user's location
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
+      navigator.geolocation.watchPosition(
         (position) => {
           const userCoords: [number, number] = [
             position.coords.longitude,
             position.coords.latitude
           ];
           setUserLocation(userCoords);
+          console.log('User location updated:', userCoords);
 
-          // Add user marker
-          new mapboxgl.Marker({ color: '#FF0000' })
+          // Update or add user marker
+          const el = document.createElement('div');
+          el.className = 'user-marker';
+          el.style.width = '20px';
+          el.style.height = '20px';
+          el.style.borderRadius = '50%';
+          el.style.backgroundColor = '#FF0000';
+          el.style.border = '2px solid white';
+
+          new mapboxgl.Marker(el)
             .setLngLat(userCoords)
-            .setPopup(new mapboxgl.Popup().setHTML('<h3>You are here</h3>'))
+            .setPopup(new mapboxgl.Popup().setHTML('<h3>Your Location</h3>'))
             .addTo(map.current!);
 
-          // Add parking location marker
-          new mapboxgl.Marker({ color: '#0000FF' })
-            .setLngLat(parkingLocation)
-            .setPopup(new mapboxgl.Popup().setHTML('<h3>Parking Location</h3>'))
-            .addTo(map.current!);
-
-          // Draw route
-          getRoute(userCoords, parkingLocation);
+          // If admin, center on user location
+          if (isAdmin && map.current) {
+            map.current.flyTo({
+              center: userCoords,
+              zoom: 14
+            });
+          }
         },
-        () => {
+        (error) => {
+          console.error('Error getting location:', error);
           toast({
             title: "Error",
             description: "Unable to get your location",
             variant: "destructive"
           });
+        },
+        {
+          enableHighAccuracy: true,
+          maximumAge: 10000,
+          timeout: 5000
         }
       );
+    }
+
+    // Add parking slot markers
+    parkingSlots.forEach(slot => {
+      const el = document.createElement('div');
+      el.className = 'parking-marker';
+      el.style.width = '30px';
+      el.style.height = '30px';
+      el.style.backgroundColor = slot.status === 'available' ? '#4CAF50' : '#FF5252';
+      el.style.borderRadius = '50%';
+      el.style.border = '3px solid white';
+      el.style.cursor = 'pointer';
+
+      const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
+        <div class="p-2">
+          <h3 class="font-bold">Parking Slot ${slot.id}</h3>
+          <p>Status: ${slot.status}</p>
+          ${slot.plateNumber ? `<p>Plate: ${slot.plateNumber}</p>` : ''}
+        </div>
+      `);
+
+      new mapboxgl.Marker(el)
+        .setLngLat(slot.location)
+        .setPopup(popup)
+        .addTo(map.current!);
+    });
+
+    // Draw route if user location is available
+    if (userLocation) {
+      getRoute(userLocation, parkingLocation);
     }
 
     return () => {
       map.current?.remove();
     };
-  }, [parkingLocation]);
+  }, [parkingLocation, parkingSlots, isAdmin]);
 
   const getRoute = async (start: [number, number], end: [number, number]) => {
     try {
@@ -109,6 +168,17 @@ const Map = ({ parkingLocation = [-74.006, 40.7128], onBack }: MapProps) => {
             'line-width': 5,
             'line-opacity': 0.75
           }
+        });
+      }
+
+      // Calculate and display distance and duration
+      if (data.distance && data.duration) {
+        const distance = (data.distance / 1000).toFixed(1);
+        const duration = Math.round(data.duration / 60);
+        
+        toast({
+          title: "Route Information",
+          description: `Distance: ${distance}km, Duration: ${duration} minutes`,
         });
       }
     } catch (error) {
