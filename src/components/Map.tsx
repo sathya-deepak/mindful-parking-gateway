@@ -81,25 +81,25 @@ const Map = ({ parkingLocation = [-74.006, 40.7128], onBack }: MapProps) => {
       const data = json.routes[0];
       const route = data.geometry.coordinates;
 
-      const geojson: mapboxgl.GeoJSONSourceRaw = {
-        type: 'geojson',
-        data: {
-          type: 'Feature',
-          properties: {},
-          geometry: {
-            type: 'LineString',
-            coordinates: route
-          }
+      const geojsonData = {
+        type: 'Feature',
+        properties: {},
+        geometry: {
+          type: 'LineString',
+          coordinates: route
         }
       };
 
       if (map.current?.getSource('route')) {
-        (map.current.getSource('route') as mapboxgl.GeoJSONSource).setData(geojson.data);
+        (map.current.getSource('route') as mapboxgl.GeoJSONSource).setData(geojsonData as any);
       } else {
         map.current?.addLayer({
           id: 'route',
           type: 'line',
-          source: geojson,
+          source: {
+            type: 'geojson',
+            data: geojsonData
+          },
           layout: {
             'line-join': 'round',
             'line-cap': 'round'
