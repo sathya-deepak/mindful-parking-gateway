@@ -54,7 +54,7 @@ const AdminDashboard = () => {
       <div className="p-4">
         <Button 
           onClick={handleLogout}
-          className="fixed top-4 right-4 bg-red-500 hover:bg-red-600"
+          className="fixed top-4 right-4 bg-red-500 hover:bg-red-600 shadow-lg hover:shadow-xl transition-all"
         >
           <LogOut className="mr-2 h-4 w-4" />
           Logout
@@ -166,7 +166,7 @@ const AdminDashboard = () => {
                   <Button 
                     onClick={handleVerifyPlate} 
                     disabled={!selectedSpot || !plateNumber}
-                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 transition-all"
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
                   >
                     Verify & Open Gate
                   </Button>

@@ -109,13 +109,15 @@ const UserDashboard = () => {
                     onChange={(e) => setPlateNumber(e.target.value)}
                     className="text-center"
                   />
+
                   <Button 
                     onClick={handleBookSpot} 
                     disabled={!selectedSpot || !plateNumber}
-                    className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 transition-all"
+                    className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl"
                   >
                     Book Selected Spot
                   </Button>
+
                 </div>
               </CardContent>
             </Card>

@@ -90,7 +90,7 @@ const Login = ({ setIsAdmin }: LoginProps) => {
             onChange={(e) => setPassword(e.target.value)}
           />
           <Button 
-            className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition-all flex items-center justify-center gap-2" 
+            className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-xl" 
             onClick={handleAdminLogin}
             disabled={loading}
           >
@@ -98,7 +98,7 @@ const Login = ({ setIsAdmin }: LoginProps) => {
             Login as Admin
           </Button>
           <Button 
-            className="w-full border-2 border-purple-200 hover:border-purple-300 transition-all flex items-center justify-center gap-2" 
+            className="w-full border-2 border-purple-200 hover:border-purple-300 transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg" 
             variant="outline"
             onClick={handleUserLogin}
             disabled={loading}
