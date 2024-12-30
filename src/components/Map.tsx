@@ -27,7 +27,7 @@ const Map = ({ parkingLocation = DEMO_LOCATIONS.userLocation, onBack, isAdmin = 
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/streets-v12',
-      center: parkingLocation as [number, number],
+      center: parkingLocation,
       zoom: 14
     });
 
