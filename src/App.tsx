@@ -7,6 +7,7 @@ import { useState } from "react";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import UserDashboard from "./pages/user/UserDashboard";
 import Login from "./pages/Login";
+import Index from "./pages/Index";
 
 const queryClient = new QueryClient();
 
@@ -20,13 +21,13 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <Routes>
+            <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login setIsAdmin={setIsAdmin} />} />
             <Route 
               path="/admin/*" 
               element={isAdmin ? <AdminDashboard /> : <Navigate to="/login" />} 
             />
             <Route path="/user/*" element={<UserDashboard />} />
-            <Route path="/" element={<Navigate to="/login" />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
