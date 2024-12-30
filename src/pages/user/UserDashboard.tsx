@@ -48,7 +48,7 @@ const UserDashboard = () => {
       {showMap ? (
         <div className="max-w-4xl mx-auto px-4 py-8">
           <Map
-            parkingLocation={[-74.006, 40.7128]}
+            isAdmin={false}
             onBack={() => setShowMap(false)}
           />
         </div>

@@ -43,14 +43,12 @@ const AdminDashboard = () => {
     }
   };
 
-  // ... keep existing code (Hero Section)
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       {showMap ? (
         <div className="max-w-6xl mx-auto px-4 py-8">
           <Map
-            parkingLocation={[-74.006, 40.7128]}
+            isAdmin={true}
             onBack={() => setShowMap(false)}
           />
         </div>
