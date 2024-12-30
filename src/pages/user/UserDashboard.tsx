@@ -3,8 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { Car } from "lucide-react";
+import { Car, LogOut } from "lucide-react";
 import Map from "@/components/Map";
+import { useNavigate } from "react-router-dom";
 
 interface ParkingSpot {
   id: number;
@@ -14,6 +15,7 @@ interface ParkingSpot {
 
 const UserDashboard = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [parkingSpots, setParkingSpots] = useState<ParkingSpot[]>(
     Array.from({ length: 10 }, (_, i) => ({
       id: i + 1,
@@ -43,8 +45,22 @@ const UserDashboard = () => {
     }
   };
 
+  const handleLogout = () => {
+    navigate("/");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
+      <div className="p-4">
+        <Button 
+          onClick={handleLogout}
+          className="fixed top-4 right-4 bg-red-500 hover:bg-red-600"
+        >
+          <LogOut className="mr-2 h-4 w-4" />
+          Logout
+        </Button>
+      </div>
+
       {showMap ? (
         <div className="max-w-4xl mx-auto px-4 py-8">
           <Map
@@ -54,18 +70,6 @@ const UserDashboard = () => {
         </div>
       ) : (
         <>
-          {/* Hero Section */}
-          <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white py-20 px-8">
-            <div className="max-w-4xl mx-auto text-center">
-              <Car className="w-16 h-16 mx-auto mb-6 text-white/90" />
-              <h1 className="text-4xl font-bold mb-4">Smart Parking Solutions</h1>
-              <p className="text-xl text-white/90 mb-8">
-                Find and book your parking spot with ease. Real-time availability and instant booking.
-              </p>
-            </div>
-          </div>
-
-          {/* Main Content */}
           <div className="max-w-4xl mx-auto px-4 py-12">
             <Card className="shadow-lg border-0">
               <CardHeader className="text-center">

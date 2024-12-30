@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Car, Key } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 interface LoginProps {
   setIsAdmin: (value: boolean) => void;
@@ -10,44 +12,83 @@ interface LoginProps {
 
 const Login = ({ setIsAdmin }: LoginProps) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleAdminLogin = () => {
-    setLoading(true);
-    setIsAdmin(true);
-    setTimeout(() => {
-      navigate("/admin");
-      setLoading(false);
-    }, 1000);
+    if (username === "admin" && password === "admin123") {
+      setLoading(true);
+      setIsAdmin(true);
+      toast({
+        title: "Welcome Admin",
+        description: "Successfully logged in as administrator",
+      });
+      setTimeout(() => {
+        navigate("/admin");
+        setLoading(false);
+      }, 1000);
+    } else {
+      toast({
+        title: "Login Failed",
+        description: "Invalid admin credentials",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleUserLogin = () => {
-    setLoading(true);
-    setIsAdmin(false);
-    setTimeout(() => {
-      navigate("/user");
-      setLoading(false);
-    }, 1000);
+    if (username === "user" && password === "user123") {
+      setLoading(true);
+      setIsAdmin(false);
+      toast({
+        title: "Welcome User",
+        description: "Successfully logged in as user",
+      });
+      setTimeout(() => {
+        navigate("/user");
+        setLoading(false);
+      }, 1000);
+    } else {
+      toast({
+        title: "Login Failed",
+        description: "Invalid user credentials",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white flex flex-col items-center justify-center px-4">
-      {/* Hero Section */}
       <div className="text-center mb-8">
         <Car className="w-16 h-16 mx-auto mb-4 text-purple-600" />
         <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
           Smart Parking System
         </h1>
         <p className="text-lg text-gray-600 max-w-md mx-auto">
-          Efficient parking management solution for both users and administrators
+          Demo Credentials:<br />
+          Admin: admin/admin123<br />
+          User: user/user123
         </p>
       </div>
 
       <Card className="w-full max-w-[350px] shadow-lg border-0">
         <CardHeader>
-          <CardTitle className="text-2xl text-center text-purple-800">Welcome Back</CardTitle>
+          <CardTitle className="text-2xl text-center text-purple-800">Login</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          <Input
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+          <Input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
           <Button 
             className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition-all flex items-center justify-center gap-2" 
             onClick={handleAdminLogin}
@@ -67,31 +108,6 @@ const Login = ({ setIsAdmin }: LoginProps) => {
           </Button>
         </CardContent>
       </Card>
-
-      {/* Features Section */}
-      <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto px-4">
-        <div className="text-center">
-          <div className="bg-purple-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Car className="w-6 h-6 text-purple-600" />
-          </div>
-          <h3 className="font-semibold mb-2">Real-time Tracking</h3>
-          <p className="text-sm text-gray-600">Monitor parking spots availability in real-time</p>
-        </div>
-        <div className="text-center">
-          <div className="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Key className="w-6 h-6 text-blue-600" />
-          </div>
-          <h3 className="font-semibold mb-2">Secure Access</h3>
-          <p className="text-sm text-gray-600">Advanced security for both users and administrators</p>
-        </div>
-        <div className="text-center">
-          <div className="bg-purple-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Car className="w-6 h-6 text-purple-600" />
-          </div>
-          <h3 className="font-semibold mb-2">Easy Booking</h3>
-          <p className="text-sm text-gray-600">Simple and quick parking spot reservation</p>
-        </div>
-      </div>
     </div>
   );
 };

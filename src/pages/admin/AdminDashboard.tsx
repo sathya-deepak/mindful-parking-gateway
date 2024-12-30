@@ -3,8 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { ShieldCheck, Car, Activity } from "lucide-react";
+import { ShieldCheck, Car, Activity, LogOut } from "lucide-react";
 import Map from "@/components/Map";
+import { useNavigate } from "react-router-dom";
 
 interface ParkingSpot {
   id: number;
@@ -14,6 +15,7 @@ interface ParkingSpot {
 
 const AdminDashboard = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [parkingSpots, setParkingSpots] = useState<ParkingSpot[]>(
     Array.from({ length: 10 }, (_, i) => ({
       id: i + 1,
@@ -43,8 +45,22 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleLogout = () => {
+    navigate("/");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+      <div className="p-4">
+        <Button 
+          onClick={handleLogout}
+          className="fixed top-4 right-4 bg-red-500 hover:bg-red-600"
+        >
+          <LogOut className="mr-2 h-4 w-4" />
+          Logout
+        </Button>
+      </div>
+
       {showMap ? (
         <div className="max-w-6xl mx-auto px-4 py-8">
           <Map
