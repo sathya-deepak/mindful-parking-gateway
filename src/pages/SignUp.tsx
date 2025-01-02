@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { InputWithIcon } from "@/components/ui/input-with-icon";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Car, User, Mail, Phone, Key } from "lucide-react";
@@ -81,7 +81,7 @@ const SignUp = () => {
           <div className="space-y-4">
             <div className="flex gap-4">
               <div className="flex-1">
-                <Input
+                <InputWithIcon
                   placeholder="Username"
                   name="username"
                   value={formData.username}
@@ -91,7 +91,7 @@ const SignUp = () => {
                 />
               </div>
               <div className="flex-1">
-                <Input
+                <InputWithIcon
                   placeholder="Email"
                   type="email"
                   name="email"
@@ -105,7 +105,7 @@ const SignUp = () => {
             
             <div className="flex gap-4">
               <div className="flex-1">
-                <Input
+                <InputWithIcon
                   type="password"
                   placeholder="Password"
                   name="password"
@@ -116,7 +116,7 @@ const SignUp = () => {
                 />
               </div>
               <div className="flex-1">
-                <Input
+                <InputWithIcon
                   type="password"
                   placeholder="Confirm Password"
                   name="confirmPassword"
@@ -128,7 +128,7 @@ const SignUp = () => {
               </div>
             </div>
 
-            <Input
+            <InputWithIcon
               placeholder="Full Name"
               name="fullName"
               value={formData.fullName}
@@ -139,7 +139,7 @@ const SignUp = () => {
 
             <div className="flex gap-4">
               <div className="flex-1">
-                <Input
+                <InputWithIcon
                   placeholder="Phone Number"
                   name="phone"
                   value={formData.phone}
@@ -149,7 +149,7 @@ const SignUp = () => {
                 />
               </div>
               <div className="flex-1">
-                <Input
+                <InputWithIcon
                   placeholder="Car Plate Number"
                   name="carPlate"
                   value={formData.carPlate}
