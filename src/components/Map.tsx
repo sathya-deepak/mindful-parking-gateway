@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Button } from './ui/button';
@@ -7,7 +7,7 @@ import { useToast } from './ui/use-toast';
 import { createMapMarker } from './map/MapMarker';
 import { drawRoute } from './map/MapRoute';
 import { DEMO_LOCATIONS } from '../data/mockLocations';
-import { Input } from './ui/input';
+import { MAPBOX_TOKEN } from '../config/mapbox';
 
 interface MapProps {
   parkingLocation?: [number, number];
@@ -29,14 +29,12 @@ const Map = ({
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const { toast } = useToast();
-  const [mapboxToken, setMapboxToken] = useState<string>(() => localStorage.getItem('mapbox_token') || '');
-  const [isTokenSet, setIsTokenSet] = useState(!!mapboxToken);
 
   const initializeMap = () => {
-    if (!mapContainer.current || !mapboxToken) return;
+    if (!mapContainer.current) return;
 
     try {
-      mapboxgl.accessToken = mapboxToken;
+      mapboxgl.accessToken = MAPBOX_TOKEN;
       
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
@@ -122,54 +120,18 @@ const Map = ({
       console.error('Error initializing map:', error);
       toast({
         title: "Error",
-        description: "Failed to initialize map. Please check your Mapbox token.",
+        description: "Failed to initialize map. Please check your internet connection.",
         variant: "destructive"
       });
     }
   };
 
-  const handleSetToken = () => {
-    localStorage.setItem('mapbox_token', mapboxToken);
-    setIsTokenSet(true);
-  };
-
   useEffect(() => {
+    initializeMap();
     return () => {
       map.current?.remove();
     };
-  }, []);
-
-  useEffect(() => {
-    if (isTokenSet) {
-      initializeMap();
-    }
-  }, [isTokenSet, mapboxToken, parkingLocation]);
-
-  if (!isTokenSet) {
-    return (
-      <div className="p-4 space-y-4">
-        <h2 className="text-lg font-semibold">Enter your Mapbox Token</h2>
-        <p className="text-sm text-gray-600">
-          Please enter your Mapbox public token. You can find this in your Mapbox account dashboard.
-          This will be saved locally and used for all map features.
-        </p>
-        <div className="space-y-2">
-          <Input
-            type="text"
-            placeholder="Enter your Mapbox token"
-            value={mapboxToken}
-            onChange={(e) => setMapboxToken(e.target.value)}
-          />
-          <Button 
-            onClick={handleSetToken}
-            disabled={!mapboxToken}
-          >
-            Set Token
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  }, [parkingLocation]);
 
   return (
     <div className="relative w-full h-[500px] md:h-[600px] rounded-lg overflow-hidden">

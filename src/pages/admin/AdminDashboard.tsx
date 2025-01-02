@@ -3,17 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { ShieldCheck, Car, Activity, LogOut, MapPin, Navigation } from "lucide-react";
+import { LogOut } from "lucide-react";
 import Map from "@/components/Map";
 import { useNavigate } from "react-router-dom";
 import { DEMO_LOCATIONS } from "@/data/mockLocations";
-
-interface ParkingSpot {
-  id: number;
-  status: "available" | "occupied" | "pending";
-  plateNumber?: string;
-  location?: [number, number];
-}
+import { AdminStats } from "@/components/admin/AdminStats";
+import { ParkingSpotGrid } from "@/components/admin/ParkingSpotGrid";
+import { ProgressSteps } from "@/components/admin/ProgressSteps";
+import { ParkingSpot } from "@/types/parking";
 
 const AdminDashboard = () => {
   const { toast } = useToast();
@@ -63,6 +60,9 @@ const AdminDashboard = () => {
     navigate("/");
   };
 
+  const availableSpots = parkingSpots.filter(spot => spot.status === "available").length;
+  const occupiedSpots = parkingSpots.filter(spot => spot.status === "occupied").length;
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       <div className="p-4">
@@ -75,26 +75,8 @@ const AdminDashboard = () => {
         </Button>
       </div>
 
-      {/* Progress Steps */}
       <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="flex justify-center mb-8">
-          <div className="flex items-center space-x-4">
-            <div className={`flex items-center ${step === 'select-location' ? 'text-blue-600' : 'text-gray-400'}`}>
-              <MapPin className="h-5 w-5 mr-2" />
-              <span>Select Location</span>
-            </div>
-            <div className="h-px w-8 bg-gray-300" />
-            <div className={`flex items-center ${step === 'manage-spots' ? 'text-blue-600' : 'text-gray-400'}`}>
-              <Car className="h-5 w-5 mr-2" />
-              <span>Manage Spots</span>
-            </div>
-            <div className="h-px w-8 bg-gray-300" />
-            <div className={`flex items-center ${step === 'view-route' ? 'text-blue-600' : 'text-gray-400'}`}>
-              <Navigation className="h-5 w-5 mr-2" />
-              <span>View Route</span>
-            </div>
-          </div>
-        </div>
+        <ProgressSteps currentStep={step} />
 
         {step === 'select-location' && (
           <Card className="shadow-lg border-0">
@@ -113,62 +95,21 @@ const AdminDashboard = () => {
 
         {step === 'manage-spots' && (
           <>
-            {/* Stats Section */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold mb-2">Total Spots</h3>
-                  <p className="text-3xl font-bold text-blue-600">10</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold mb-2">Available</h3>
-                  <p className="text-3xl font-bold text-green-600">
-                    {parkingSpots.filter(spot => spot.status === "available").length}
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold mb-2">Occupied</h3>
-                  <p className="text-3xl font-bold text-red-600">
-                    {parkingSpots.filter(spot => spot.status === "occupied").length}
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
+            <AdminStats 
+              availableSpots={availableSpots}
+              occupiedSpots={occupiedSpots}
+            />
 
-            {/* Parking Management */}
             <Card className="shadow-lg border-0">
               <CardHeader>
                 <CardTitle className="text-2xl text-center text-blue-800">Parking Management</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-8">
-                  {parkingSpots.map(spot => (
-                    <Button
-                      key={spot.id}
-                      variant={spot.status === "available" ? "outline" : "secondary"}
-                      className={`h-24 w-full transition-all hover:scale-105 ${
-                        spot.status === "occupied" ? "bg-red-100 hover:bg-red-200" :
-                        spot.status === "pending" ? "bg-yellow-100 hover:bg-yellow-200" :
-                        "hover:border-blue-500 hover:text-blue-700"
-                      } ${
-                        selectedSpot?.id === spot.id ? "ring-2 ring-blue-500" : ""
-                      }`}
-                      onClick={() => setSelectedSpot(spot)}
-                    >
-                      <div className="text-center">
-                        <div className="text-lg font-semibold">Spot {spot.id}</div>
-                        <div className="text-sm capitalize">{spot.status}</div>
-                        {spot.plateNumber && (
-                          <div className="text-xs mt-1">{spot.plateNumber}</div>
-                        )}
-                      </div>
-                    </Button>
-                  ))}
-                </div>
+                <ParkingSpotGrid 
+                  spots={parkingSpots}
+                  selectedSpot={selectedSpot}
+                  onSpotSelect={setSelectedSpot}
+                />
 
                 <div className="max-w-md mx-auto space-y-4">
                   <Input

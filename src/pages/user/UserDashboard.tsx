@@ -7,13 +7,7 @@ import { Car, LogOut, MapPin, Navigation } from "lucide-react";
 import Map from "@/components/Map";
 import { useNavigate } from "react-router-dom";
 import { DEMO_LOCATIONS } from "@/data/mockLocations";
-
-interface ParkingSpot {
-  id: number;
-  status: "available" | "occupied" | "pending";
-  plateNumber?: string;
-  location?: [number, number];
-}
+import { ParkingSpot } from "@/types/parking";
 
 const UserDashboard = () => {
   const { toast } = useToast();
@@ -75,7 +69,6 @@ const UserDashboard = () => {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* Progress Steps */}
         <div className="flex justify-center mb-8">
           <div className="flex items-center space-x-4">
             <div className={`flex items-center ${step === 'select-location' ? 'text-blue-600' : 'text-gray-400'}`}>
