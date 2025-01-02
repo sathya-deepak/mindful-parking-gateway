@@ -7,6 +7,7 @@ import { useState } from "react";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import UserDashboard from "./pages/user/UserDashboard";
 import Login from "./pages/Login";
+import SignUp from "./pages/SignUp";
 import Index from "./pages/Index";
 
 const queryClient = new QueryClient();
@@ -23,6 +24,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login setIsAdmin={setIsAdmin} />} />
+            <Route path="/signup" element={<SignUp />} />
             <Route 
               path="/admin/*" 
               element={isAdmin ? <AdminDashboard /> : <Navigate to="/login" />} 

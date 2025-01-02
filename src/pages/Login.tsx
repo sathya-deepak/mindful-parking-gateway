@@ -106,6 +106,15 @@ const Login = ({ setIsAdmin }: LoginProps) => {
             <Car className="w-4 h-4" />
             Login as User
           </Button>
+          <div className="text-center text-sm text-gray-600">
+            Don't have an account?{" "}
+            <button
+              onClick={() => navigate("/signup")}
+              className="text-purple-600 hover:text-purple-700 font-medium"
+            >
+              Sign up here
+            </button>
+          </div>
         </CardContent>
       </Card>
     </div>
