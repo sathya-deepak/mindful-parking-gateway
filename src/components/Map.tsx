@@ -29,8 +29,8 @@ const Map = ({
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const { toast } = useToast();
-  const [mapboxToken, setMapboxToken] = useState<string>('');
-  const [isTokenSet, setIsTokenSet] = useState(false);
+  const [mapboxToken, setMapboxToken] = useState<string>(() => localStorage.getItem('mapbox_token') || '');
+  const [isTokenSet, setIsTokenSet] = useState(!!mapboxToken);
 
   const initializeMap = () => {
     if (!mapContainer.current || !mapboxToken) return;
@@ -46,6 +46,33 @@ const Map = ({
       });
 
       map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+      map.current.addControl(new mapboxgl.GeolocateControl({
+        positionOptions: { enableHighAccuracy: true },
+        trackUserLocation: true
+      }));
+
+      // Add place names
+      map.current.on('load', () => {
+        map.current?.addLayer({
+          id: 'poi-labels',
+          type: 'symbol',
+          source: {
+            type: 'vector',
+            url: 'mapbox://mapbox.mapbox-streets-v8'
+          },
+          'source-layer': 'poi_label',
+          layout: {
+            'text-field': ['get', 'name'],
+            'text-size': 12,
+            'text-anchor': 'top'
+          },
+          paint: {
+            'text-color': '#666',
+            'text-halo-color': '#fff',
+            'text-halo-width': 1
+          }
+        });
+      });
 
       // Add demo user location marker
       createMapMarker({
@@ -67,7 +94,6 @@ const Map = ({
       });
 
       if (showRoute && parkingLocation) {
-        // Draw route from user location to selected parking
         drawRoute(
           map.current,
           DEMO_LOCATIONS.userLocation,
@@ -87,7 +113,6 @@ const Map = ({
           onLocationSelect(coordinates);
         });
 
-        // Add helper text
         toast({
           title: "Select Location",
           description: "Click on the map to select your current location",
@@ -101,6 +126,11 @@ const Map = ({
         variant: "destructive"
       });
     }
+  };
+
+  const handleSetToken = () => {
+    localStorage.setItem('mapbox_token', mapboxToken);
+    setIsTokenSet(true);
   };
 
   useEffect(() => {
@@ -121,6 +151,7 @@ const Map = ({
         <h2 className="text-lg font-semibold">Enter your Mapbox Token</h2>
         <p className="text-sm text-gray-600">
           Please enter your Mapbox public token. You can find this in your Mapbox account dashboard.
+          This will be saved locally and used for all map features.
         </p>
         <div className="space-y-2">
           <Input
@@ -130,7 +161,7 @@ const Map = ({
             onChange={(e) => setMapboxToken(e.target.value)}
           />
           <Button 
-            onClick={() => setIsTokenSet(true)}
+            onClick={handleSetToken}
             disabled={!mapboxToken}
           >
             Set Token
