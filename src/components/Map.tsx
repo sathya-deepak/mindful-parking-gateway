@@ -13,9 +13,19 @@ interface MapProps {
   parkingLocation?: [number, number];
   onBack?: () => void;
   isAdmin?: boolean;
+  onLocationSelect?: (location: [number, number]) => void;
+  isSelectionMode?: boolean;
+  showRoute?: boolean;
 }
 
-const Map = ({ parkingLocation = DEMO_LOCATIONS.userLocation, onBack, isAdmin = false }: MapProps) => {
+const Map = ({ 
+  parkingLocation = DEMO_LOCATIONS.userLocation, 
+  onBack, 
+  isAdmin = false,
+  onLocationSelect,
+  isSelectionMode = false,
+  showRoute = false
+}: MapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const { toast } = useToast();
@@ -56,18 +66,33 @@ const Map = ({ parkingLocation = DEMO_LOCATIONS.userLocation, onBack, isAdmin = 
         });
       });
 
-      // Draw route from user location to selected parking
-      drawRoute(
-        map.current,
-        DEMO_LOCATIONS.userLocation,
-        parkingLocation,
-        (distance, duration) => {
-          toast({
-            title: "Route Information",
-            description: `Distance: ${distance}km, Duration: ${duration} minutes`,
-          });
-        }
-      );
+      if (showRoute && parkingLocation) {
+        // Draw route from user location to selected parking
+        drawRoute(
+          map.current,
+          DEMO_LOCATIONS.userLocation,
+          parkingLocation,
+          (distance, duration) => {
+            toast({
+              title: "Route Information",
+              description: `Distance: ${distance}km, Duration: ${duration} minutes`,
+            });
+          }
+        );
+      }
+
+      if (isSelectionMode && onLocationSelect) {
+        map.current.on('click', (e) => {
+          const coordinates: [number, number] = [e.lngLat.lng, e.lngLat.lat];
+          onLocationSelect(coordinates);
+        });
+
+        // Add helper text
+        toast({
+          title: "Select Location",
+          description: "Click on the map to select your current location",
+        });
+      }
     } catch (error) {
       console.error('Error initializing map:', error);
       toast({
