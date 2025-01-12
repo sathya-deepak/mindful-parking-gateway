@@ -86,7 +86,7 @@ const Map = ({
           location: slot.location as [number, number],
           map: map.current!,
           status: slot.status,
-          plateNumber: slot.plateNumber,
+          plateNumber: isAdmin ? slot.plateNumber : undefined,
           id: slot.id
         });
       });
