@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Button } from './ui/button';
@@ -7,8 +7,7 @@ import { useToast } from './ui/use-toast';
 import { createMapMarker } from './map/MapMarker';
 import { drawRoute } from './map/MapRoute';
 import { DEMO_LOCATIONS } from '../data/mockLocations';
-import { Input } from './ui/input';
-import { Card } from './ui/card';
+import { MAPBOX_TOKEN } from '../config/mapbox';
 
 interface MapProps {
   parkingLocation?: [number, number];
@@ -30,48 +29,12 @@ const Map = ({
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const { toast } = useToast();
-  const [mapboxToken, setMapboxToken] = useState<string>(() => {
-    return localStorage.getItem('mapbox_token') || '';
-  });
-  const [isTokenValid, setIsTokenValid] = useState(false);
 
-  const validateAndSaveToken = async (token: string) => {
-    try {
-      const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/0,0.json?access_token=${token}`
-      );
-      
-      if (response.ok) {
-        localStorage.setItem('mapbox_token', token);
-        setMapboxToken(token);
-        setIsTokenValid(true);
-        toast({
-          title: "Success",
-          description: "Mapbox token validated successfully",
-        });
-        initializeMap(token);
-      } else {
-        toast({
-          title: "Invalid Token",
-          description: "Please check your Mapbox token and try again",
-          variant: "destructive"
-        });
-      }
-    } catch (error) {
-      console.error('Error validating token:', error);
-      toast({
-        title: "Error",
-        description: "Failed to validate Mapbox token",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const initializeMap = (token: string) => {
+  const initializeMap = () => {
     if (!mapContainer.current) return;
 
     try {
-      mapboxgl.accessToken = token;
+      mapboxgl.accessToken = MAPBOX_TOKEN;
       
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
@@ -109,14 +72,14 @@ const Map = ({
         });
       });
 
-      // Add demo user location marker
+      // Add demo user location marker with location name
       createMapMarker({
         type: 'user',
         location: DEMO_LOCATIONS.userLocation,
         map: map.current
       });
 
-      // Add demo parking slots
+      // Add demo parking slots with location names
       DEMO_LOCATIONS.parkingSlots.forEach(slot => {
         createMapMarker({
           type: 'parking',
@@ -164,38 +127,11 @@ const Map = ({
   };
 
   useEffect(() => {
-    if (mapboxToken && !isTokenValid) {
-      validateAndSaveToken(mapboxToken);
-    }
+    initializeMap();
     return () => {
       map.current?.remove();
     };
-  }, [mapboxToken]);
-
-  if (!isTokenValid) {
-    return (
-      <Card className="p-6 max-w-md mx-auto">
-        <h2 className="text-xl font-bold mb-4">Mapbox Token Required</h2>
-        <p className="text-sm text-gray-600 mb-4">
-          Please enter your Mapbox public token. You can find this in your Mapbox account dashboard.
-        </p>
-        <div className="space-y-4">
-          <Input
-            type="text"
-            placeholder="Enter your Mapbox token"
-            value={mapboxToken}
-            onChange={(e) => setMapboxToken(e.target.value)}
-          />
-          <Button 
-            onClick={() => validateAndSaveToken(mapboxToken)}
-            className="w-full"
-          >
-            Validate & Save Token
-          </Button>
-        </div>
-      </Card>
-    );
-  }
+  }, [parkingLocation]);
 
   return (
     <div className="relative w-full h-[500px] md:h-[600px] rounded-lg overflow-hidden">
