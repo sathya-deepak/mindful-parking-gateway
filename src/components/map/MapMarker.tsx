@@ -7,19 +7,20 @@ interface MapMarkerProps {
   status?: 'available' | 'occupied';
   plateNumber?: string;
   id?: number;
+  isClickable?: boolean;
 }
 
-export const createMapMarker = async ({ type, location, map, status, plateNumber, id }: MapMarkerProps) => {
+export const createMapMarker = ({ 
+  type, 
+  location, 
+  map, 
+  status, 
+  plateNumber, 
+  id,
+  isClickable 
+}: MapMarkerProps) => {
   const el = document.createElement('div');
   el.className = `${type}-marker`;
-  
-  // Get location name using reverse geocoding
-  const locationName = await fetch(
-    `https://api.mapbox.com/geocoding/v5/mapbox.places/${location[0]},${location[1]}.json?access_token=${mapboxgl.accessToken}`
-  )
-    .then(res => res.json())
-    .then(data => data.features[0]?.place_name || 'Unknown Location')
-    .catch(() => 'Unknown Location');
   
   if (type === 'user') {
     el.style.width = '20px';
@@ -33,7 +34,6 @@ export const createMapMarker = async ({ type, location, map, status, plateNumber
       .setPopup(new mapboxgl.Popup().setHTML(`
         <div class="p-2">
           <h3 class="font-bold">Your Location</h3>
-          <p class="text-sm">${locationName}</p>
         </div>
       `))
       .addTo(map);
@@ -43,20 +43,22 @@ export const createMapMarker = async ({ type, location, map, status, plateNumber
     el.style.backgroundColor = status === 'available' ? '#4CAF50' : '#FF5252';
     el.style.borderRadius = '50%';
     el.style.border = '3px solid white';
-    el.style.cursor = 'pointer';
+    el.style.cursor = isClickable ? 'pointer' : 'default';
 
     const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
       <div class="p-2">
         <h3 class="font-bold">Parking Slot ${id}</h3>
-        <p class="text-sm">Location: ${locationName}</p>
         <p>Status: ${status}</p>
         ${plateNumber ? `<p>Plate: ${plateNumber}</p>` : ''}
+        ${isClickable ? '<p class="text-sm text-blue-500">Click to manage</p>' : ''}
       </div>
     `);
 
-    new mapboxgl.Marker(el)
+    const marker = new mapboxgl.Marker(el)
       .setLngLat(location)
       .setPopup(popup)
       .addTo(map);
+
+    return marker;
   }
 };

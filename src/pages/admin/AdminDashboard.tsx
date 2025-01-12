@@ -37,6 +37,38 @@ const AdminDashboard = () => {
     });
   };
 
+  const handleSlotClick = (slotId: number) => {
+    const spot = parkingSpots.find(s => s.id === slotId);
+    if (spot) {
+      setSelectedSpot(spot);
+      if (spot.status === 'available') {
+        setParkingSpots(spots =>
+          spots.map(s =>
+            s.id === slotId
+              ? { ...s, status: 'occupied', plateNumber: 'ADMIN-MARKED' }
+              : s
+          )
+        );
+        toast({
+          title: "Spot Updated",
+          description: "Parking spot marked as occupied",
+        });
+      } else {
+        setParkingSpots(spots =>
+          spots.map(s =>
+            s.id === slotId
+              ? { ...s, status: 'available', plateNumber: undefined }
+              : s
+          )
+        );
+        toast({
+          title: "Spot Updated",
+          description: "Parking spot marked as available",
+        });
+      }
+    }
+  };
+
   const handleVerifyPlate = () => {
     if (selectedSpot && plateNumber) {
       setParkingSpots(spots =>
@@ -88,6 +120,7 @@ const AdminDashboard = () => {
                 onLocationSelect={handleLocationSelect}
                 isSelectionMode={true}
                 isAdmin={true}
+                onSlotClick={handleSlotClick}
               />
             </CardContent>
           </Card>
@@ -96,8 +129,8 @@ const AdminDashboard = () => {
         {step === 'manage-spots' && (
           <>
             <AdminStats 
-              availableSpots={availableSpots}
-              occupiedSpots={occupiedSpots}
+              availableSpots={parkingSpots.filter(spot => spot.status === 'available').length}
+              occupiedSpots={parkingSpots.filter(spot => spot.status === 'occupied').length}
             />
 
             <Card className="shadow-lg border-0">
@@ -142,6 +175,7 @@ const AdminDashboard = () => {
                 showRoute={true}
                 isAdmin={true}
                 onBack={() => setStep('manage-spots')}
+                onSlotClick={handleSlotClick}
               />
             </CardContent>
           </Card>

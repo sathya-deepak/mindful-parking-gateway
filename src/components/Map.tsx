@@ -16,6 +16,7 @@ interface MapProps {
   onLocationSelect?: (location: [number, number]) => void;
   isSelectionMode?: boolean;
   showRoute?: boolean;
+  onSlotClick?: (slotId: number) => void;
 }
 
 const Map = ({ 
@@ -24,7 +25,8 @@ const Map = ({
   isAdmin = false,
   onLocationSelect,
   isSelectionMode = false,
-  showRoute = false
+  showRoute = false,
+  onSlotClick
 }: MapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
@@ -81,14 +83,21 @@ const Map = ({
 
       // Add demo parking slots with location names
       DEMO_LOCATIONS.parkingSlots.forEach(slot => {
-        createMapMarker({
+        const marker = createMapMarker({
           type: 'parking',
           location: slot.location as [number, number],
           map: map.current!,
           status: slot.status,
           plateNumber: isAdmin ? slot.plateNumber : undefined,
-          id: slot.id
+          id: slot.id,
+          isClickable: isAdmin
         });
+
+        if (isAdmin && marker && onSlotClick) {
+          marker.getElement().addEventListener('click', () => {
+            onSlotClick(slot.id);
+          });
+        }
       });
 
       if (showRoute && parkingLocation) {
