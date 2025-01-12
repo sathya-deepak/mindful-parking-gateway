@@ -9,9 +9,17 @@ interface MapMarkerProps {
   id?: number;
 }
 
-export const createMapMarker = ({ type, location, map, status, plateNumber, id }: MapMarkerProps) => {
+export const createMapMarker = async ({ type, location, map, status, plateNumber, id }: MapMarkerProps) => {
   const el = document.createElement('div');
   el.className = `${type}-marker`;
+  
+  // Get location name using reverse geocoding
+  const locationName = await fetch(
+    `https://api.mapbox.com/geocoding/v5/mapbox.places/${location[0]},${location[1]}.json?access_token=${mapboxgl.accessToken}`
+  )
+    .then(res => res.json())
+    .then(data => data.features[0]?.place_name || 'Unknown Location')
+    .catch(() => 'Unknown Location');
   
   if (type === 'user') {
     el.style.width = '20px';
@@ -22,7 +30,12 @@ export const createMapMarker = ({ type, location, map, status, plateNumber, id }
     
     new mapboxgl.Marker(el)
       .setLngLat(location)
-      .setPopup(new mapboxgl.Popup().setHTML('<h3>Your Location</h3>'))
+      .setPopup(new mapboxgl.Popup().setHTML(`
+        <div class="p-2">
+          <h3 class="font-bold">Your Location</h3>
+          <p class="text-sm">${locationName}</p>
+        </div>
+      `))
       .addTo(map);
   } else {
     el.style.width = '30px';
@@ -35,6 +48,7 @@ export const createMapMarker = ({ type, location, map, status, plateNumber, id }
     const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
       <div class="p-2">
         <h3 class="font-bold">Parking Slot ${id}</h3>
+        <p class="text-sm">Location: ${locationName}</p>
         <p>Status: ${status}</p>
         ${plateNumber ? `<p>Plate: ${plateNumber}</p>` : ''}
       </div>
