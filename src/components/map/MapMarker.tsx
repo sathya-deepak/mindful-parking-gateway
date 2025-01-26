@@ -4,10 +4,11 @@ interface MapMarkerProps {
   type: 'user' | 'parking';
   location: [number, number];
   map: mapboxgl.Map;
-  status?: 'available' | 'occupied';
+  status?: 'available' | 'occupied' | 'pending';
   plateNumber?: string;
   id?: number;
   isClickable?: boolean;
+  name?: string;
 }
 
 export const createMapMarker = ({ 
@@ -17,7 +18,8 @@ export const createMapMarker = ({
   status, 
   plateNumber, 
   id,
-  isClickable 
+  isClickable,
+  name
 }: MapMarkerProps) => {
   const el = document.createElement('div');
   el.className = `${type}-marker`;
@@ -34,20 +36,21 @@ export const createMapMarker = ({
       .setPopup(new mapboxgl.Popup().setHTML(`
         <div class="p-2">
           <h3 class="font-bold">Your Location</h3>
+          <p>Times Square</p>
         </div>
       `))
       .addTo(map);
   } else {
     el.style.width = '30px';
     el.style.height = '30px';
-    el.style.backgroundColor = status === 'available' ? '#4CAF50' : '#FF5252';
+    el.style.backgroundColor = status === 'available' ? '#4CAF50' : status === 'pending' ? '#FFA500' : '#FF5252';
     el.style.borderRadius = '50%';
     el.style.border = '3px solid white';
     el.style.cursor = isClickable ? 'pointer' : 'default';
 
     const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
       <div class="p-2">
-        <h3 class="font-bold">Parking Slot ${id}</h3>
+        <h3 class="font-bold">${name || `Parking Slot ${id}`}</h3>
         <p>Status: ${status}</p>
         ${plateNumber ? `<p>Plate: ${plateNumber}</p>` : ''}
         ${isClickable ? '<p class="text-sm text-blue-500">Click to manage</p>' : ''}

@@ -90,7 +90,8 @@ const Map = ({
           status: slot.status,
           plateNumber: isAdmin ? slot.plateNumber : undefined,
           id: slot.id,
-          isClickable: isAdmin
+          isClickable: isAdmin,
+          name: slot.name
         });
 
         if (isAdmin && marker && onSlotClick) {
