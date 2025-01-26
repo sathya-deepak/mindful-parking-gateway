@@ -40,30 +40,17 @@ const AdminDashboard = () => {
   const handleSlotClick = (slotId: number) => {
     const spot = parkingSpots.find(s => s.id === slotId);
     if (spot) {
-      setSelectedSpot(spot);
-      if (spot.status === 'available') {
-        setParkingSpots(spots =>
-          spots.map(s =>
-            s.id === slotId
-              ? { ...s, status: 'occupied', plateNumber: 'ADMIN-MARKED' }
-              : s
-          )
-        );
+      if (spot.status === 'pending') {
+        setSelectedSpot(spot);
         toast({
-          title: "Spot Updated",
-          description: "Parking spot marked as occupied",
+          title: "Spot Selected",
+          description: "Please verify the plate number to confirm occupancy.",
         });
       } else {
-        setParkingSpots(spots =>
-          spots.map(s =>
-            s.id === slotId
-              ? { ...s, status: 'available', plateNumber: undefined }
-              : s
-          )
-        );
         toast({
-          title: "Spot Updated",
-          description: "Parking spot marked as available",
+          title: "Action Not Allowed",
+          description: "You can only verify spots that have been booked by users.",
+          variant: "destructive"
         });
       }
     }
@@ -71,20 +58,29 @@ const AdminDashboard = () => {
 
   const handleVerifyPlate = () => {
     if (selectedSpot && plateNumber) {
-      setParkingSpots(spots =>
-        spots.map(spot =>
-          spot.id === selectedSpot.id
-            ? { ...spot, status: "occupied", plateNumber }
-            : spot
-        )
-      );
-      toast({
-        title: "Vehicle Verified",
-        description: `Gate opened for vehicle ${plateNumber}`,
-      });
-      setPlateNumber("");
-      setSelectedSpot(null);
-      setStep('view-route');
+      // Check if the entered plate number matches the pending booking
+      if (selectedSpot.plateNumber === plateNumber) {
+        setParkingSpots(spots =>
+          spots.map(spot =>
+            spot.id === selectedSpot.id
+              ? { ...spot, status: "occupied", plateNumber }
+              : spot
+          )
+        );
+        toast({
+          title: "Booking Verified",
+          description: `Spot ${selectedSpot.id} has been verified and marked as occupied for vehicle ${plateNumber}`,
+        });
+        setPlateNumber("");
+        setSelectedSpot(null);
+        setStep('view-route');
+      } else {
+        toast({
+          title: "Verification Failed",
+          description: "The entered plate number doesn't match the booking.",
+          variant: "destructive"
+        });
+      }
     }
   };
 
@@ -129,8 +125,8 @@ const AdminDashboard = () => {
         {step === 'manage-spots' && (
           <>
             <AdminStats 
-              availableSpots={parkingSpots.filter(spot => spot.status === 'available').length}
-              occupiedSpots={parkingSpots.filter(spot => spot.status === 'occupied').length}
+              availableSpots={availableSpots}
+              occupiedSpots={occupiedSpots}
             />
 
             <Card className="shadow-lg border-0">
@@ -146,7 +142,7 @@ const AdminDashboard = () => {
 
                 <div className="max-w-md mx-auto space-y-4">
                   <Input
-                    placeholder="Enter plate number to verify"
+                    placeholder="Enter plate number to verify booking"
                     value={plateNumber}
                     onChange={(e) => setPlateNumber(e.target.value)}
                     className="text-center"
@@ -156,7 +152,7 @@ const AdminDashboard = () => {
                     disabled={!selectedSpot || !plateNumber}
                     className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
                   >
-                    Verify & Open Gate
+                    Verify Booking & Mark Occupied
                   </Button>
                 </div>
               </CardContent>
